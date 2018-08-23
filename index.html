@@ -51,7 +51,7 @@ p {
 
 #features {
   top: 0;
-  height: 100px;
+  height: 120px;
   margin-top: 20px;
   width: 250px;
 }
@@ -60,9 +60,9 @@ p {
   padding: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   line-height: 18px;
-  height: 150px;
+  height: 95px;
   margin-bottom: 40px;
-  width: 100px;
+  width: 150px;
 }
 
 .legend-key {
@@ -77,7 +77,7 @@ p {
 <body>
 
 <div id='map'></div>
-<div class='map-overlay' id='features'><h2>Canadian population density</h2><div id='pd'><p>Hover over a province or territory!</p></div></div>
+<div class='map-overlay' id='features'><h2>Indigenous population density</h2><div id='pd'><p>Hover over a province or territory!</p></div></div>
 <div class='map-overlay' id='legend'></div>
 
 <script>
@@ -89,6 +89,38 @@ var map = new mapboxgl.Map({
 
 // Add zoom and rotation controls to the map.
 map.addControl(new mapboxgl.NavigationControl());
+
+map.on('load', function() {
+  var layers = ['1730-9999', '10000-49999', '50000-99999', '100000-149999', '150000+'];
+  var colors = ['#FFEDA0', '#cfecd9', '#a0dab3', '#40b7c4', '#3195a0', '#253393'];
+
+for (i = 0; i < layers.length; i++) {
+  var layer = layers[i];
+  var color = colors[i];
+  var item = document.createElement('div');
+  var key = document.createElement('span');
+  key.className = 'legend-key';
+  key.style.backgroundColor = color;
+
+  var value = document.createElement('span');
+  value.innerHTML = layer;
+  item.appendChild(key);
+  item.appendChild(value);
+  legend.appendChild(item);
+}
+
+map.on('mousemove', function(e) {
+  var provinces = map.queryRenderedFeatures(e.point, {
+    layers: ['canada-pop']
+  });
+
+  if (provinces.length > 0) {
+    document.getElementById('pd').innerHTML = '<h3><strong>' + provinces[0].properties.NAME + '</strong></h3><p><strong><em>' + provinces[0].properties.aboriginal_pop + '</strong> Indigenous population</em></p>';
+  } else {
+    document.getElementById('pd').innerHTML = '<p>Hover over a province!</p>';
+  }
+});
+});
 </script>
 
 </body>
